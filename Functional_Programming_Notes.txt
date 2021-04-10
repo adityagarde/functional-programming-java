@@ -1,0 +1,158 @@
+Functional Programming
+
+	- Immutability
+	- Functional Purity
+	- First Class Functions
+
+1. Immutability - 
+
+Fixed values - treating most values as constants in Java Ex final variables. Mathematical constants like pi.
+Avoid State change issue with variables. Difficult to track the ever changing values.
+Original data is going to remain intact- makes it easier to find bugs. Easy to track the code and treat parts of code individually.
+
+2. Functional Purity -
+
+A set of given inputs will always return same output. No internal state change. Impure code means there is state change internally. That means the only way to change the output of our function is to change one or more input parameters then it is pure.
+
+3. First-Class Functions
+
+Function<T, R> - Makes it possible to treat functions as any other objects in java - we can pass them as argument, return them, have array of functions etc.
+
+		Function<Integer, Integer> myTriple = MyMath::triple;  --reference
+		Integer result = myTriple.apply(5); --apply is there for objects of all function interfaces.
+		<T, R> -- the datatype mentioned here should match the input arg and return type respectively.
+
+When only 1 argument is there than parentesis are not required. Below 4 are same lambdas with variable syntax.
+
+		Function<Integer, Integer> myFunction1 = (Integer someInt) -> someInt * 2 + 1;
+		System.out.println(myFunction1.apply(5));
+
+		Function<Integer, Integer> myFunction2 = someInt -> someInt * 2 + 1;
+		System.out.println(myFunction2.apply(5));
+
+		Function<Integer, Integer> myFunction3 = (Integer someInt) -> {
+			Integer resultHere = someInt * 2 + 1;
+			return resultHere;
+		};
+		System.out.println(myFunction3.apply(5));
+
+		Function<Integer, Integer> myFunction4 = someInt -> {
+			Integer resultHere = someInt * 2 + 1;
+			return resultHere;
+		};
+		System.out.println(myFunction4.apply(5));
+
+BiFunction<T, U, R> - takes 2 arguments.
+
+Declaring Function in Interface - 
+	public interface TriFunction<T, U, V, R> {
+		R apply(T t, U u, V v);
+	}
+
+Closure - When we return a function it still has access to the scope that it was returned from.
+
+Higher Order Functions - Functions which take other functions as arguments or returns other functions.
+
+----------------------------
+
+JAVA STREAMS -
+
+Streams take a data in list etc. and process them in a streamlined way. myList.stream()
+
+1. Map
+	myList.stream().map({function object})
+Map takes each element from the stream and maps it to the return value of the function we give it.
+Data which we get after processing of map, filter etc is a modified copy of the input. The input as such remains intact - no mutation happens.
+
+myList.stream.map(someFunction)
+			 .collect(Collectors.toList());  --- Converting the returned stream back to list.
+
+2. Filter
+	myList.stream().filter(someBooleanFunction)
+In filter we use function which return boolean value for each element. If the function pass returns true for a given element, then the element is kept in the output stream, otherwise it is left out.
+This function which returns boolen value is technically a predicate -- Predicate<T> --- T = Datatype of the argument bcoz return type is going to be boolean by default.
+
+List<Integer> evenList3 = intList.stream().filter(x -> x % 2 == 0).collect(Collectors.toList());
+
+
+3. Reduce
+
+Reducing helps us take a list of data and help us reduce it to a single element. Ex. product / sum / average etc.
+
+list.stream().reduce(someBinaryOperator) --- this takes BinaryOperator<T>
+
+BinaryOperator is a BiFunction where two arguments and return type are of the same type.
+
+list.stream().reduce(startingValue, someBinaryOperator) ---> one varient of reduce.
+will use the first argument as starting value for computation or when the list is empty. In this case, the accululator will be equal to the startingValue and the second argument will be equal to the first element of our list.
+By default, i.e. when not mentioned - the starting value of the accumulator is the first element in the screen.
+
+
+.reduce(func)   =>   Optional<T>
+.reduce(startingValue, func)   =>   T
+
+Unlike map or fiter, reduce does not return the stream - it just returns the type returned by the binary operator used.
+
+Ex.
+		BinaryOperator<Integer> sumOperator = (acc, x) -> {
+			Integer result = acc + x;
+			return result;
+		};
+
+		acc = acc + x --- looped.
+
+4. Collect
+
+Similar to reduce - but can return any datatype result while reduce can return just the datatype of the parent binary operator.
+
+	myList.stream().collect(myCollect) -- Collector<T, V, R>
+										- This Collector is not a functional interface - it is an interface provided by Java with a way to collect all data and return some final value or object.
+
+Ex. Collectors.groupingBy
+	- divides the element in different groups and returns a map containing those different groups.
+	- This logic of grouping is achieved by passing Function as argument.
+
+5. ParallelStreams
+
+	- list.parallelStreams() ---> works with map, reduce, filter, collect all.
+	- they process data paralley.
+	- increase performance.
+
+Parallel Streams allow the processing of data to be split up accross multiple threads, which can greately decrease the time it takes to process large amount of data. Java splits our stream into multiple parts and processes each part concurrently on seperate threads and then it combies those results to get the final result.
+
+In the final result - original order is preserved.
+
+Telling java what needs to be done(functional) than how it is to be done (imperative) makes it very easy to parallerlize.
+
+-------------
+
+Advanced Topics - 
+
+1. Partial Application - 
+
+	When we take a function with some number of arguments and we fix some of those arguments to a set value. Used to configure more general functions into specific functions.
+
+2. Recursion
+
+3. Composition
+
+Combining two functions Ex. 2x and x-1 => 2x - 1.
+func1.compose(func2) ----> executes func2 first and then func1.
+func1.andThen(func2) ----> executes func1 and then func2.
+
+-------
+
+Working with Functions and Lambdas
+
+Functional Interfaces -
+
+1. Predicates - takes one Arguments and returns a predicate.
+2. Consumer - accepts single argument with no return value.
+3. Function - accepts one argument and produces a result.
+4. Supplier - return a result, represents a supplier of results.
+5. UnaryOperator - single argument and return value.
+6. BinaryOperator - takes two arguments and returns one.
+
+
+Primitive Streams - IntStream, LongStream, FloatStream
+and they have corresponding Functions - IntFunction, LongFunction etc.
